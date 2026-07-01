@@ -1,25 +1,33 @@
-import logo from './logo.svg';
+import { useState } from 'react';
 import './App.css';
+import DashboardAdministrador from './Dashboard/dashboardAdministrador';
+import DashboardUsuarios from './Dashboard/dashboardUsuarios';
+import Loing from './Auth/Loing';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentView, setCurrentView] = useState('store'); // 'store' o 'login'
+
+  if (isAuthenticated) {
+    return (
+      <DashboardAdministrador
+        onLogout={() => {
+          setIsAuthenticated(false);
+          setCurrentView('store');
+        }}
+      />
+    );
+  }
+
+  return currentView === 'store' ? (
+    <DashboardUsuarios onNavigateToLogin={() => setCurrentView('login')} />
+  ) : (
+    <Loing
+      onLogin={() => setIsAuthenticated(true)}
+      onBackToStore={() => setCurrentView('store')}
+    />
   );
 }
 
 export default App;
+

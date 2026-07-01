@@ -39,6 +39,22 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
+## Deploy on Vercel
+
+This project is ready to deploy as a single Vercel app.
+
+1. Connect the repository to Vercel.
+2. Keep the build command as `npm run build`.
+3. Add these environment variables in Vercel for the MySQL backend:
+	- `DB_HOST`
+	- `DB_PORT`
+	- `DB_USER`
+	- `DB_PASSWORD`
+	- `DB_NAME`
+4. Deploy normally. The frontend uses relative `/api` paths and Vercel serves the Express backend from the `api/` folder.
+
+For local development, run the frontend with `npm start` and the backend with `npm run api:dev`.
+
 ## Learn More
 
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
