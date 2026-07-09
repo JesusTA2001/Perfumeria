@@ -24,6 +24,8 @@ import {
 	History,
 	CalendarTodayOutlined,
 	AttachMoneyOutlined,
+	PhoneOutlined,
+	CancelOutlined,
 } from '@mui/icons-material';
 
 const apiBaseUrl = process.env.REACT_APP_API_URL || '/api';
@@ -39,7 +41,6 @@ const PERIOD_OPTIONS = [
 function isWithinDays(dateString, days) {
 	if (days === null) return true;
 	if (days === 0) {
-		// Solo hoy
 		const today = new Date();
 		const d = new Date(dateString);
 		return (
@@ -88,7 +89,7 @@ function Pedidos({ estado }) {
 				method: 'PUT',
 			});
 			if (!response.ok) {
-				throw new Error('No se pudo actualizar el estado del pedido.');
+				throw new Error('No se pudo actualizar el estado del pedido a entregado.');
 			}
 			setPedidos((current) =>
 				current.map((pedido) => (pedido.id === id ? { ...pedido, estado: 'entregado' } : pedido))
@@ -98,8 +99,25 @@ function Pedidos({ estado }) {
 		}
 	};
 
+	const handleNoDeliver = async (id) => {
+		try {
+			setError('');
+			const response = await fetch(`${apiBaseUrl}/pedidos/${id}/no-entregar`, {
+				method: 'PUT',
+			});
+			if (!response.ok) {
+				throw new Error('No se pudo actualizar el estado del pedido a no entregado.');
+			}
+			setPedidos((current) =>
+				current.map((pedido) => (pedido.id === id ? { ...pedido, estado: 'no_entregado' } : pedido))
+			);
+		} catch (err) {
+			setError(err.message);
+		}
+	};
+
 	const formatPrice = (price) =>
-		new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(price);
+		new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
 
 	const formatDate = (dateString) =>
 		new Date(dateString).toLocaleDateString('es-MX', {
@@ -118,6 +136,7 @@ function Pedidos({ estado }) {
 			const matchSearch =
 				!searchTerm.trim() ||
 				p.clienteNombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				p.clienteTelefono?.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				p.perfumeName?.toLowerCase().includes(searchTerm.toLowerCase());
 			return matchEstado && matchPeriod && matchSearch;
 		});
@@ -128,6 +147,18 @@ function Pedidos({ estado }) {
 		const total = filteredPedidos.reduce((acc, p) => acc + Number(p.precioTotal), 0);
 		return { count: filteredPedidos.length, total };
 	}, [filteredPedidos]);
+
+	const getEstadoLabel = (est) => {
+		if (est === 'pendiente') return 'Pendiente';
+		if (est === 'entregado') return 'Entregado';
+		return 'No entregado';
+	};
+
+	const getEstadoColor = (est) => {
+		if (est === 'pendiente') return 'primary';
+		if (est === 'entregado') return 'success';
+		return 'error';
+	};
 
 	if (loading) {
 		return (
@@ -160,7 +191,7 @@ function Pedidos({ estado }) {
 				<Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', display: 'block', mb: 1.5, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
 					Filtrar por período
 				</Typography>
-				<Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 2.5 }}>
+				<Stack direction="row" spacing={1} useFlexGap sx={{ mb: 2.5, flexWrap: 'wrap' }}>
 					{PERIOD_OPTIONS.map((opt) => (
 						<Chip
 							key={opt.label}
@@ -186,7 +217,7 @@ function Pedidos({ estado }) {
 				<TextField
 					size="small"
 					fullWidth
-					placeholder="Buscar por cliente o perfume..."
+					placeholder="Buscar por cliente, teléfono o perfume..."
 					value={searchTerm}
 					onChange={(e) => setSearchTerm(e.target.value)}
 					slotProps={{
@@ -216,7 +247,7 @@ function Pedidos({ estado }) {
 						<Typography variant="body2" sx={{ fontWeight: 700, color: 'text.primary' }}>
 							{stats.count}{' '}
 							<Typography component="span" variant="body2" color="text.secondary" sx={{ fontWeight: 400 }}>
-								{estado === 'pendiente' ? 'pedido(s) pendiente(s)' : 'entrega(s)'}
+								{estado === 'pendiente' ? 'pedido(s) pendiente(s)' : (estado === 'entregado' ? 'entrega(s)' : 'pedido(s) no entregado(s)')}
 								{selectedPeriod.days !== null ? ` — ${selectedPeriod.label}` : ''}
 							</Typography>
 						</Typography>
@@ -260,7 +291,7 @@ function Pedidos({ estado }) {
 									<Box
 										sx={{
 											p: 2,
-											backgroundColor: estado === 'pendiente' ? 'rgba(25, 118, 210, 0.04)' : 'rgba(46, 125, 50, 0.04)',
+											backgroundColor: estado === 'pendiente' ? 'rgba(25, 118, 210, 0.04)' : (estado === 'entregado' ? 'rgba(46, 125, 50, 0.04)' : 'rgba(211, 47, 47, 0.04)'),
 											borderBottom: '1px solid rgba(15, 23, 42, 0.05)',
 											display: 'flex',
 											justifyContent: 'space-between',
@@ -271,9 +302,9 @@ function Pedidos({ estado }) {
 											Pedido #{pedido.id}
 										</Typography>
 										<Chip
-											icon={estado === 'pendiente' ? <LocalShippingOutlined fontSize="small" /> : <History fontSize="small" />}
-											label={estado === 'pendiente' ? 'Pendiente' : 'Entregado'}
-											color={estado === 'pendiente' ? 'primary' : 'success'}
+											icon={estado === 'pendiente' ? <LocalShippingOutlined fontSize="small" /> : (estado === 'entregado' ? <History fontSize="small" /> : <CancelOutlined fontSize="small" />)}
+											label={getEstadoLabel(estado)}
+											color={getEstadoColor(estado)}
 											size="small"
 											variant="outlined"
 											sx={{ fontWeight: 700, '& .MuiChip-icon': { fontSize: '0.9rem' } }}
@@ -284,8 +315,8 @@ function Pedidos({ estado }) {
 									<CardContent sx={{ flexGrow: 1, p: 3 }}>
 										<Stack spacing={2}>
 											{/* Cliente */}
-											<Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-												<PersonOutlined sx={{ color: 'text.secondary' }} />
+											<Stack direction="row" spacing={1.5} sx={{ alignItems: 'flex-start' }}>
+												<PersonOutlined sx={{ color: 'text.secondary', mt: 0.2 }} />
 												<Box>
 													<Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
 														Cliente
@@ -293,6 +324,14 @@ function Pedidos({ estado }) {
 													<Typography variant="body2" sx={{ fontWeight: 700, color: 'text.primary' }}>
 														{pedido.clienteNombre}
 													</Typography>
+													{pedido.clienteTelefono && (
+														<Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', mt: 0.5 }}>
+															<PhoneOutlined sx={{ fontSize: '0.9rem', color: 'text.secondary' }} />
+															<Typography variant="caption" sx={{ fontWeight: 600, color: 'text.secondary' }}>
+																{pedido.clienteTelefono}
+															</Typography>
+														</Stack>
+													)}
 												</Box>
 											</Stack>
 
@@ -356,22 +395,42 @@ function Pedidos({ estado }) {
 
 										{estado === 'pendiente' ? (
 											<CardActions sx={{ px: 0, pt: 2, pb: 0 }}>
-												<Button
-													fullWidth
-													variant="contained"
-													color="success"
-													startIcon={<CheckCircleOutlined />}
-													onClick={() => handleDeliver(pedido.id)}
-													sx={{
-														py: 1,
-														borderRadius: 2.5,
-														fontWeight: 700,
-														boxShadow: 'none',
-														'&:hover': { boxShadow: '0 4px 12px rgba(46, 125, 50, 0.2)' },
-													}}
-												>
-													Marcar como Entregado
-												</Button>
+												<Stack direction="row" spacing={1} sx={{ width: '100%' }}>
+													<Button
+														fullWidth
+														variant="contained"
+														color="success"
+														startIcon={<CheckCircleOutlined />}
+														onClick={() => handleDeliver(pedido.id)}
+														sx={{
+															py: 1,
+															borderRadius: 2.5,
+															fontWeight: 700,
+															boxShadow: 'none',
+															fontSize: '0.85rem',
+															'&:hover': { boxShadow: '0 4px 12px rgba(46, 125, 50, 0.2)' },
+														}}
+													>
+														Entregado
+													</Button>
+													<Button
+														fullWidth
+														variant="contained"
+														color="error"
+														startIcon={<CancelOutlined />}
+														onClick={() => handleNoDeliver(pedido.id)}
+														sx={{
+															py: 1,
+															borderRadius: 2.5,
+															fontWeight: 700,
+															fontSize: '0.85rem',
+															boxShadow: 'none',
+															'&:hover': { boxShadow: '0 4px 12px rgba(211, 47, 47, 0.2)' },
+														}}
+													>
+														No entregado
+													</Button>
+												</Stack>
 											</CardActions>
 										) : null}
 									</Box>
@@ -397,16 +456,18 @@ function Pedidos({ estado }) {
 						<>
 							{estado === 'pendiente' ? (
 								<CheckCircleOutlined sx={{ fontSize: 60, color: 'success.main', mb: 2 }} />
-							) : (
+							) : estado === 'entregado' ? (
 								<History sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
+							) : (
+								<CancelOutlined sx={{ fontSize: 60, color: 'error.main', mb: 2 }} />
 							)}
 							<Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-								{estado === 'pendiente' ? '¡Todos los pedidos están al día!' : 'Historial vacío'}
+								{estado === 'pendiente' ? '¡Todos los pedidos están al día!' : (estado === 'entregado' ? 'Historial vacío' : 'Sin pedidos no entregados')}
 							</Typography>
 							<Typography variant="body2" color="text.secondary">
 								{estado === 'pendiente'
 									? 'No hay pedidos pendientes de entrega en este momento.'
-									: 'Aún no se han completado entregas en el sistema.'}
+									: estado === 'entregado' ? 'Aún no se han completado entregas en el sistema.' : 'No hay registro de pedidos marcados como no entregados.'}
 							</Typography>
 						</>
 					) : (

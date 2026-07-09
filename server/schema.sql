@@ -73,7 +73,7 @@ CREATE TABLE presentacion_perfume (
 CREATE TABLE imagen_perfume (
     id_imagen INT AUTO_INCREMENT PRIMARY KEY,
     id_perfume INT NOT NULL,
-    ruta_imagen VARCHAR(255) NOT NULL,
+    ruta_imagen LONGTEXT NOT NULL,
     principal BOOLEAN DEFAULT FALSE,
     CONSTRAINT fk_imagen_perfume
         FOREIGN KEY (id_perfume)
@@ -100,6 +100,7 @@ CREATE TABLE pedido (
     comentarios TEXT,
     total DECIMAL(10,2) NOT NULL DEFAULT 0,
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    estado VARCHAR(20) NOT NULL DEFAULT 'pendiente',
     CONSTRAINT fk_pedido_cliente
         FOREIGN KEY (id_cliente)
         REFERENCES cliente(id_cliente)

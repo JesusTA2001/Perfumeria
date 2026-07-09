@@ -185,7 +185,7 @@ function EditarPerfume({ open, product, onClose, onSave, categories }) {
 							</Grid>
 							<Grid size={{ xs: 12, sm: 4 }}>
 								<TextField
-									label="Precio (MXN)"
+									label="Precio (USD)"
 									type="number"
 									value={formState.price}
 									onChange={(event) => setFormState((currentState) => ({ ...currentState, price: event.target.value }))}

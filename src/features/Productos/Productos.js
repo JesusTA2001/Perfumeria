@@ -22,9 +22,9 @@ function Productos({ products }) {
 	);
 
 	const formatPrice = (price) => {
-		return new Intl.NumberFormat('es-MX', {
+		return new Intl.NumberFormat('en-US', {
 			style: 'currency',
-			currency: 'MXN',
+			currency: 'USD',
 		}).format(price);
 	};
 
@@ -51,24 +51,26 @@ function Productos({ products }) {
 					onChange={(e) => setSearchTerm(e.target.value)}
 					fullWidth
 					variant="outlined"
-					InputProps={{
-						startAdornment: (
-							<InputAdornment position="start">
-								<Search sx={{ color: 'text.secondary' }} />
-							</InputAdornment>
-						),
-						sx: {
-							backgroundColor: '#ffffff',
-							borderRadius: 3,
-							boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
-							'& fieldset': {
-								borderColor: 'rgba(15, 23, 42, 0.08)',
-							},
-							'&:hover fieldset': {
-								borderColor: 'primary.main',
-							},
-							'&.Mui-focused fieldset': {
-								borderColor: 'primary.main',
+					slotProps={{
+						input: {
+							startAdornment: (
+								<InputAdornment position="start">
+									<Search sx={{ color: 'text.secondary' }} />
+								</InputAdornment>
+							),
+							sx: {
+								backgroundColor: '#ffffff',
+								borderRadius: 3,
+								boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
+								'& fieldset': {
+									borderColor: 'rgba(15, 23, 42, 0.08)',
+								},
+								'&:hover fieldset': {
+									borderColor: 'primary.main',
+								},
+								'&.Mui-focused fieldset': {
+									borderColor: 'primary.main',
+								},
 							},
 						},
 					}}

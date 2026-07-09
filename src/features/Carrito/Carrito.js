@@ -12,7 +12,6 @@ import {
 	List,
 	ListItem,
 	ListItemAvatar,
-	ListItemText,
 	Stack,
 	TextField,
 	Typography,
@@ -28,7 +27,7 @@ import {
 	ShoppingBagOutlined,
 } from '@mui/icons-material';
 
-const WHATSAPP_PHONE = '15595812917'; // Número de teléfono de WhatsApp por defecto (editable)
+const WHATSAPP_PHONE = '15597199484'; // Número de teléfono de WhatsApp por defecto (editable)
 
 export default function Carrito({
 	open,
@@ -137,12 +136,14 @@ Gracias.`;
 				anchor="right"
 				open={open}
 				onClose={onClose}
-				PaperProps={{
-					sx: {
-						width: { xs: '100%', sm: 400 },
-						backgroundColor: '#ffffff',
-						display: 'flex',
-						flexDirection: 'column',
+				slotProps={{
+					paper: {
+						sx: {
+							width: { xs: '100%', sm: 400 },
+							backgroundColor: '#ffffff',
+							display: 'flex',
+							flexDirection: 'column',
+						},
 					},
 				}}
 			>
@@ -205,46 +206,39 @@ Gracias.`;
 												}}
 											/>
 										</ListItemAvatar>
-										<ListItemText
-											primary={
-												<Typography variant="subtitle2" sx={{ fontWeight: 700, pr: 3 }}>
-													{item.name}
+										<Box sx={{ flex: 1, minWidth: 0, pr: 3 }}>
+											<Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+												{item.name}
+											</Typography>
+											<Typography variant="caption" color="text.secondary" component="div">
+												Categoría: {item.category} • 100ml
+											</Typography>
+											<Typography variant="subtitle2" color="primary" component="div" sx={{ fontWeight: 700 }}>
+												{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(item.price)}
+											</Typography>
+											{/* Controles de Cantidad */}
+											<Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', mt: 0.5 }}>
+												<IconButton
+													size="small"
+													disabled={item.quantity <= 1}
+													onClick={() => onUpdateQuantity(item.id_presentacion, item.quantity - 1)}
+													sx={{ border: '1px solid rgba(15, 23, 42, 0.12)', p: 0.2 }}
+												>
+													<Remove fontSize="small" />
+												</IconButton>
+												<Typography variant="body2" component="span" sx={{ minWidth: 32, textAlign: 'center', fontWeight: 700 }}>
+													{item.quantity}
 												</Typography>
-											}
-											secondary={
-												<Stack spacing={1} sx={{ mt: 0.5 }}>
-													<Typography variant="caption" color="text.secondary">
-														Categoría: {item.category} • 100ml
-													</Typography>
-													<Typography variant="subtitle2" color="primary" sx={{ fontWeight: 700 }}>
-														{new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(item.price)}
-													</Typography>
-
-													{/* Controles de Cantidad */}
-													<Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', mt: 0.5 }}>
-														<IconButton
-															size="small"
-															disabled={item.quantity <= 1}
-															onClick={() => onUpdateQuantity(item.id_presentacion, item.quantity - 1)}
-															sx={{ border: '1px solid rgba(15, 23, 42, 0.12)', p: 0.2 }}
-														>
-															<Remove fontSize="small" />
-														</IconButton>
-														<Typography variant="body2" sx={{ minWidth: 32, textAlign: 'center', fontWeight: 700 }}>
-															{item.quantity}
-														</Typography>
-														<IconButton
-															size="small"
-															disabled={item.quantity >= item.stock}
-															onClick={() => onUpdateQuantity(item.id_presentacion, item.quantity + 1)}
-															sx={{ border: '1px solid rgba(15, 23, 42, 0.12)', p: 0.2 }}
-														>
-															<Add fontSize="small" />
-														</IconButton>
-													</Stack>
-												</Stack>
-											}
-										/>
+												<IconButton
+													size="small"
+													disabled={item.quantity >= item.stock}
+													onClick={() => onUpdateQuantity(item.id_presentacion, item.quantity + 1)}
+													sx={{ border: '1px solid rgba(15, 23, 42, 0.12)', p: 0.2 }}
+												>
+													<Add fontSize="small" />
+												</IconButton>
+											</Stack>
+										</Box>
 									</ListItem>
 									<Divider sx={{ borderStyle: 'dashed' }} />
 								</Box>
@@ -261,7 +255,7 @@ Gracias.`;
 								Total estimado
 							</Typography>
 							<Typography variant="h6" sx={{ fontWeight: 800, color: 'primary.main' }}>
-								{new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(total)}
+								{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(total)}
 							</Typography>
 						</Stack>
 						<Button
@@ -290,10 +284,12 @@ Gracias.`;
 				onClose={() => !loading && setCheckoutOpen(false)}
 				maxWidth="xs"
 				fullWidth
-				PaperProps={{
-					sx: {
-						borderRadius: 4,
-						p: 1.5,
+				slotProps={{
+					paper: {
+						sx: {
+							borderRadius: 4,
+							p: 1.5,
+						},
 					},
 				}}
 			>

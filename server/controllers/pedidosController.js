@@ -4,6 +4,7 @@ const getPedidosQuery = `
   SELECT 
     p.id_pedido AS id,
     c.nombre_completo AS clienteNombre,
+    c.telefono AS clienteTelefono,
     GROUP_CONCAT(CONCAT(perf.nombre, ' (', dp.cantidad, ' ', IF(dp.cantidad = 1, 'unidad', 'unidades'), ')') SEPARATOR ', ') AS perfumeName,
     COALESCE(SUM(dp.cantidad), 1) AS cantidad,
     p.total AS precioTotal,
@@ -32,6 +33,20 @@ exports.entregarPedido = async (req, res) => {
   try {
     const { id } = req.params;
     await pool.query('UPDATE pedido SET estado = "entregado" WHERE id_pedido = ?', [id]);
+    const [rows] = await pool.query(`${getPedidosQuery.replace('ORDER BY p.fecha DESC', '')} HAVING p.id_pedido = ?`, [id]);
+    if (!rows[0]) {
+      return res.status(404).json({ message: 'Pedido no encontrado' });
+    }
+    return res.json(rows[0]);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+exports.noEntregarPedido = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query('UPDATE pedido SET estado = "no_entregado" WHERE id_pedido = ?', [id]);
     const [rows] = await pool.query(`${getPedidosQuery.replace('ORDER BY p.fecha DESC', '')} HAVING p.id_pedido = ?`, [id]);
     if (!rows[0]) {
       return res.status(404).json({ message: 'Pedido no encontrado' });

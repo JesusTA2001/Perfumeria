@@ -26,7 +26,6 @@ import {
 	LockOutlined,
 	Search,
 	ShoppingBagOutlined,
-	StarBorder,
 } from '@mui/icons-material';
 import Carrito from '../features/Carrito/Carrito';
 
@@ -136,23 +135,21 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 					backgroundColor: 'rgba(22, 26, 34, 0.95)',
 					backdropFilter: 'blur(12px)',
 					borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-					py: 2,
+					py: 1,
 				}}
 			>
 				<Container maxWidth="lg">
 					<Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
 						{/* Logo / Marca */}
-						<Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-							<StarBorder sx={{ color: '#C9A84C', fontSize: 32, transform: 'rotate(15deg)' }} />
-							<Box>
-								<Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: '-0.5px', color: '#ffffff', lineHeight: 1.1 }}>
-									PERFUMERÍA
-								</Typography>
-								<Typography variant="caption" sx={{ fontWeight: 1400, color: '#C9A84C', letterSpacing: '1px' }}>
-									HG
-								</Typography>
-							</Box>
-						</Stack>
+						<Box
+							component="img"
+							src="/logo_nav.jpg"
+							alt="Perfumería y Fragancias"
+							sx={{
+								height: 85,
+								objectFit: 'contain',
+							}}
+						/>
 
 						{/* Botones de acción */}
 						<Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
@@ -314,7 +311,7 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 									}}
 								>
 									{catProducts.map((product) => (
-										<Box key={product.id_presentacion} sx={{ minWidth: { xs: 260, sm: 290 }, maxWidth: 290, flexShrink: 0 }}>
+										<Box key={product.id} sx={{ minWidth: { xs: 260, sm: 290 }, maxWidth: 290, flexShrink: 0 }}>
 											<Card
 												sx={{
 													borderRadius: 4,
@@ -363,7 +360,7 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 														{product.name}
 													</Typography>
 													<Typography variant="h6" sx={{ fontWeight: 800, color: '#C9A84C', mb: 2 }}>
-														{new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(product.price)}
+														{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(product.price)}
 													</Typography>
 													<Stack direction="row" spacing={1} sx={{ mt: 'auto' }}>
 														<Button variant="outlined" fullWidth onClick={() => setSelectedProduct(product)}
@@ -400,8 +397,8 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 				onClose={() => setSelectedProduct(null)}
 				maxWidth="sm"
 				fullWidth
-				PaperProps={{
-					sx: { borderRadius: 5, overflow: 'hidden' },
+				slotProps={{
+					paper: { sx: { borderRadius: 5, overflow: 'hidden' } },
 				}}
 			>
 				{selectedProduct && (
@@ -439,7 +436,7 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 								{selectedProduct.name}
 							</Typography>
 							<Typography variant="h4" sx={{ fontWeight: 800, color: '#C9A84C', mb: 3 }}>
-								{new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(selectedProduct.price)}
+								{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(selectedProduct.price)}
 							</Typography>
 
 							<Divider sx={{ mb: 3 }} />

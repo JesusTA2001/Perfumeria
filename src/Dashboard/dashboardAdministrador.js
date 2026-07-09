@@ -285,7 +285,7 @@ function DashboardAdministrador({ onLogout }) {
 			renderCell: (params) => (
 				<Box
 					component="img"
-					src={params.value}
+					src={params.value || 'https://images.pexels.com/photos/965989/pexels-photo-965989.jpeg?auto=compress&cs=tinysrgb&w=400'}
 					alt={params.row.name}
 					sx={{ width: 48, height: 48, borderRadius: 2, objectFit: 'cover', border: '1px solid rgba(255,255,255,0.08)' }}
 				/>
@@ -297,7 +297,7 @@ function DashboardAdministrador({ onLogout }) {
 			field: 'price',
 			headerName: 'Precio',
 			width: 140,
-			valueFormatter: (value) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(value),
+			valueFormatter: (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value),
 		},
 		{ field: 'stock', headerName: 'Stock', width: 110 },
 		{
@@ -358,6 +358,7 @@ function DashboardAdministrador({ onLogout }) {
 		{ label: 'Productos', value: 'productos' },
 		{ label: 'Pedidos', value: 'pedidos' },
 		{ label: 'Entregados', value: 'entregados' },
+		{ label: 'No entregados', value: 'no_entregados' },
 	];
 
 	const sidebar = (
@@ -472,6 +473,7 @@ function DashboardAdministrador({ onLogout }) {
 								{currentTab === 'productos' && 'Catálogo de Productos'}
 								{currentTab === 'pedidos' && 'Pedidos Pendientes'}
 								{currentTab === 'entregados' && 'Historial de Entregados'}
+								{currentTab === 'no_entregados' && 'Pedidos No Entregados'}
 							</Typography>
 						</Stack>
 						<Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
@@ -500,7 +502,7 @@ function DashboardAdministrador({ onLogout }) {
 											<Chip label="Inventario" size="small" color="primary" />
 										</Stack>
 										<Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary' }}>
-											{new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(metrics.inventoryValue)}
+											{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(metrics.inventoryValue)}
 										</Typography>
 										<Typography variant="body2" color="text.secondary">
 											Valor total del inventario
@@ -640,7 +642,7 @@ function DashboardAdministrador({ onLogout }) {
 																<Box sx={{ width: `${pct}%`, height: '100%', borderRadius: 999, background: value > 0 ? 'linear-gradient(90deg, #C9A84C 0%, #E8D5A3 100%)' : 'transparent', transition: 'width 0.5s ease' }} />
 															</Box>
 															<Typography variant="body2" sx={{ minWidth: 80, textAlign: 'right', fontWeight: 700, fontSize: '0.78rem', color: value > 0 ? '#C9A84C' : 'text.disabled' }}>
-																{value > 0 ? new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(value) : '—'}
+																{value > 0 ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value) : '—'}
 															</Typography>
 														</Stack>
 													</Stack>
@@ -698,6 +700,10 @@ function DashboardAdministrador({ onLogout }) {
 
 					{currentTab === 'entregados' && (
 						<Pedidos estado="entregado" />
+					)}
+
+					{currentTab === 'no_entregados' && (
+						<Pedidos estado="no_entregado" />
 					)}
 				</Box>
 			</Box>

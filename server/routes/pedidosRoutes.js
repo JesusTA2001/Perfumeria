@@ -7,5 +7,6 @@ router.get('/ventas-mensuales', pedidosController.getVentasMensuales);
 router.get('/top-perfumes', pedidosController.getTopPerfumes);
 router.post('/', pedidosController.createPedido);
 router.put('/:id/entregar', pedidosController.entregarPedido);
+router.put('/:id/no-entregar', pedidosController.noEntregarPedido);
 
 module.exports = router;
