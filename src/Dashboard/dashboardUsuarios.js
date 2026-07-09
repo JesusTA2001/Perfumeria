@@ -38,10 +38,28 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 	const [cartOpen, setCartOpen] = useState(false);
 
 	const carouselRefs = {
-		Hombre: useRef(null),
-		Mujer: useRef(null),
-		Unisex: useRef(null),
+		current: {},
 	};
+
+	const normalizeProduct = (product) => ({
+		...product,
+		name: String(product.name || '').trim(),
+		category: String(product.category || '').trim(),
+		price: Number(product.price || 0),
+		stock: Number(product.stock || 0),
+		available: product.available === true || product.available === 1 || product.available === '1',
+		mililitros: Number(product.mililitros || 100),
+	});
+
+	const categories = Array.from(
+		new Set(
+			products
+				.map((product) => String(product.category || '').trim())
+				.filter(Boolean)
+		)
+	);
+
+	const categoriesToRender = categories.length > 0 ? categories : ['Hombre', 'Mujer', 'Unisex'];
 
 	// Cargar Perfumes de la API
 	const loadPerfumes = async () => {
@@ -51,7 +69,7 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 				throw new Error('No se pudo establecer conexión con la base de datos');
 			}
 			const data = await response.json();
-			setProducts(data);
+			setProducts(data.map(normalizeProduct));
 			setApiError('');
 		} catch (err) {
 			setApiError('No se pudo establecer conexión con el servidor. Por favor, asegúrate de que el backend y la base de datos estén activos.');
@@ -113,8 +131,6 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 		}
 	};
 
-	const CATEGORIES = ['Hombre', 'Mujer', 'Unisex'];
-
 	const CATEGORY_ICONS = { Hombre: '👨', Mujer: '👩', Unisex: '🌐' };
 
 	// Perfumes disponibles filtrados por búsqueda
@@ -122,7 +138,8 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 		(p) => p.available && p.name.toLowerCase().includes(searchTerm.toLowerCase())
 	);
 
-	const getProductsByCategory = (cat) => availableProducts.filter((p) => p.category === cat);
+	const getProductsByCategory = (cat) =>
+		availableProducts.filter((p) => p.category.toLowerCase() === cat.toLowerCase());
 
 	return (
 		<Box sx={{ minHeight: '100vh', backgroundColor: '#f8fafc', pb: 8 }}>
@@ -264,15 +281,15 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 				)}
 
 				{/* 3 Carruseles por categoría */}
-				{CATEGORIES.map((cat) => {
+				{categoriesToRender.map((cat) => {
 					const catProducts = getProductsByCategory(cat);
-					const ref = carouselRefs[cat];
+					const ref = carouselRefs.current[cat] || null;
 					return (
 						<Box key={cat} sx={{ mb: 7 }}>
 							{/* Encabezado de sección */}
 							<Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
 								<Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-									<Typography sx={{ fontSize: '1.6rem', lineHeight: 1 }}>{CATEGORY_ICONS[cat]}</Typography>
+									<Typography sx={{ fontSize: '1.6rem', lineHeight: 1 }}>{CATEGORY_ICONS[cat] || '✨'}</Typography>
 									<Box>
 										<Typography variant="h5" sx={{ fontWeight: 900, color: '#0f172a', lineHeight: 1 }}>
 											Fragancias para {cat}
@@ -297,7 +314,9 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 							{/* Carrusel */}
 							{catProducts.length > 0 ? (
 								<Box
-									ref={ref}
+										ref={(el) => {
+											carouselRefs.current[cat] = el;
+										}}
 									sx={{
 										display: 'flex',
 										overflowX: 'auto',
