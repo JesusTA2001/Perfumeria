@@ -140,7 +140,8 @@ app.get('/api/health', async (_req, res) => {
 app.use('/api/perfumes', perfumesRoutes);
 app.use('/api/pedidos', pedidosRoutes);
 
-const initDbPromise = initDb();
+const shouldInitDb = process.env.VERCEL !== '1' || process.env.RUN_DB_INIT === 'true';
+const initDbPromise = shouldInitDb ? initDb() : Promise.resolve();
 
 module.exports = {
 	app,
