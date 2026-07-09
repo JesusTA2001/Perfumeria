@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
 	Box,
 	Button,
@@ -61,23 +61,22 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 
 	const categoriesToRender = categories.length > 0 ? categories : ['Hombre', 'Mujer', 'Unisex'];
 
-	// Cargar Perfumes de la API
-	const loadPerfumes = async () => {
-		try {
-			const response = await fetch('/api/perfumes');
-			if (!response.ok) {
-				throw new Error('No se pudo establecer conexión con la base de datos');
-			}
-			const data = await response.json();
-			setProducts(data.map(normalizeProduct));
-			setApiError('');
-		} catch (err) {
-			setApiError('No se pudo establecer conexión con el servidor. Por favor, asegúrate de que el backend y la base de datos estén activos.');
-			setProducts([]);
-		}
-	};
-
 	useEffect(() => {
+		const loadPerfumes = async () => {
+			try {
+				const response = await fetch('/api/perfumes');
+				if (!response.ok) {
+					throw new Error('No se pudo establecer conexión con la base de datos');
+				}
+				const data = await response.json();
+				setProducts(data.map(normalizeProduct));
+				setApiError('');
+			} catch (err) {
+				setApiError('No se pudo establecer conexión con el servidor. Por favor, asegúrate de que el backend y la base de datos estén activos.');
+				setProducts([]);
+			}
+		};
+
 		loadPerfumes();
 	}, []);
 
