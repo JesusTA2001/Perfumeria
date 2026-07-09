@@ -163,8 +163,7 @@ app.get('/api/debug/db', async (_req, res) => {
 app.use('/api/perfumes', perfumesRoutes);
 app.use('/api/pedidos', pedidosRoutes);
 
-const shouldInitDb = process.env.VERCEL !== '1' || process.env.RUN_DB_INIT === 'true';
-const initDbPromise = shouldInitDb ? initDb() : Promise.resolve();
+const initDbPromise = initDb();
 
 module.exports = {
 	app,
