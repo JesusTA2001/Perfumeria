@@ -137,6 +137,29 @@ app.get('/api/health', async (_req, res) => {
 	}
 });
 
+app.get('/api/debug/db', async (_req, res) => {
+	try {
+		const [dbRows] = await pool.query('SELECT DATABASE() AS databaseName');
+		const [perfumes] = await pool.query('SELECT COUNT(*) AS count FROM perfume');
+		const [presentaciones] = await pool.query('SELECT COUNT(*) AS count FROM presentacion_perfume');
+		const [imagenes] = await pool.query('SELECT COUNT(*) AS count FROM imagen_perfume');
+		const [categorias] = await pool.query('SELECT COUNT(*) AS count FROM categoria');
+
+		return res.json({
+			ok: true,
+			databaseName: dbRows?.[0]?.databaseName || null,
+			counts: {
+				perfume: perfumes?.[0]?.count ?? 0,
+				presentacion_perfume: presentaciones?.[0]?.count ?? 0,
+				imagen_perfume: imagenes?.[0]?.count ?? 0,
+				categoria: categorias?.[0]?.count ?? 0,
+			},
+		});
+	} catch (error) {
+		return res.status(500).json({ ok: false, message: error.message });
+	}
+});
+
 app.use('/api/perfumes', perfumesRoutes);
 app.use('/api/pedidos', pedidosRoutes);
 
