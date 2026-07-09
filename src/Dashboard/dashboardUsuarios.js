@@ -47,13 +47,20 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 		category: String(product.category || '').trim(),
 		price: Number(product.price || 0),
 		stock: Number(product.stock || 0),
-		available: product.available === true || product.available === 1 || product.available === '1',
+		available:
+			product.available === true ||
+			product.available === 1 ||
+			product.available === '1' ||
+			String(product.available).toLowerCase() === 'true',
 		mililitros: Number(product.mililitros || 100),
 	});
 
+	const visibleProducts = products.filter((product) => product.available && product.name.toLowerCase().includes(searchTerm.toLowerCase()));
+	const productsToRender = visibleProducts.length > 0 ? visibleProducts : products.filter((product) => product.name.toLowerCase().includes(searchTerm.toLowerCase()));
+
 	const categories = Array.from(
 		new Set(
-			products
+			productsToRender
 				.map((product) => String(product.category || '').trim())
 				.filter(Boolean)
 		)
@@ -133,12 +140,8 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 	const CATEGORY_ICONS = { Hombre: '👨', Mujer: '👩', Unisex: '🌐' };
 
 	// Perfumes disponibles filtrados por búsqueda
-	const availableProducts = products.filter(
-		(p) => p.available && p.name.toLowerCase().includes(searchTerm.toLowerCase())
-	);
-
 	const getProductsByCategory = (cat) =>
-		availableProducts.filter((p) => p.category.toLowerCase() === cat.toLowerCase());
+		productsToRender.filter((p) => p.category.toLowerCase() === cat.toLowerCase());
 
 	return (
 		<Box sx={{ minHeight: '100vh', backgroundColor: '#f8fafc', pb: 8 }}>
