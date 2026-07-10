@@ -1,3 +1,9 @@
+module.exports.config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 const mysql = require('mysql2/promise');
 
 // Conexión directa (no pool) para serverless
@@ -295,6 +301,32 @@ async function deletePerfume(id) {
   }
 }
 
+// Helper para leer el body manualmente (soporta payloads grandes de imágenes)
+async function getBody(req) {
+  if (req.body && typeof req.body === 'object') {
+    return req.body;
+  }
+  
+  if (typeof req.body === 'string') {
+    try { return JSON.parse(req.body); } catch (e) { return {}; }
+  }
+
+  return new Promise((resolve) => {
+    let bodyData = '';
+    req.on('data', chunk => {
+      bodyData += chunk.toString();
+    });
+    req.on('end', () => {
+      try {
+        resolve(JSON.parse(bodyData));
+      } catch (e) {
+        resolve({});
+      }
+    });
+    req.on('error', () => resolve({}));
+  });
+}
+
 // Router principal
 module.exports = async (req, res) => {
   // CORS
@@ -318,7 +350,8 @@ module.exports = async (req, res) => {
     
     // POST /api/perfumes
     if (path === '/perfumes' && req.method === 'POST') {
-      const result = await createPerfume(req.body);
+      const body = await getBody(req);
+      const result = await createPerfume(body);
       const perfumes = await getPerfumes();
       return res.status(201).json(perfumes.find(p => p.id_perfume === result.id_perfume) || result);
     }
@@ -326,7 +359,8 @@ module.exports = async (req, res) => {
     // PUT /api/perfumes/:id
     const perfumeMatch = path.match(/^\/perfumes\/(\d+)$/);
     if (perfumeMatch && req.method === 'PUT') {
-      await updatePerfume(perfumeMatch[1], req.body);
+      const body = await getBody(req);
+      await updatePerfume(perfumeMatch[1], body);
       const perfumes = await getPerfumes();
       return res.status(200).json(perfumes.find(p => p.id_perfume == perfumeMatch[1]) || { ok: true });
     }
@@ -345,7 +379,8 @@ module.exports = async (req, res) => {
     
     // POST /api/pedidos
     if (path === '/pedidos' && req.method === 'POST') {
-      const result = await createPedido(req.body);
+      const body = await getBody(req);
+      const result = await createPedido(body);
       return res.status(201).json(result);
     }
     
