@@ -58,6 +58,9 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 		imageUrl: product.ruta_imagen || product.imagen || product.imageUrl,
 	});
 
+	// Filtro búsqueda
+	const [searchTerm, setSearchTerm] = useState('');
+
 	const visibleProducts = products.filter((product) => product.available && product.name.toLowerCase().includes(searchTerm.toLowerCase()));
 	const productsToRender = visibleProducts.length > 0 ? visibleProducts : products.filter((product) => product.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
@@ -124,9 +127,6 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 	const handleClearCart = () => {
 		setCartItems([]);
 	};
-
-	// Filtro búsqueda
-	const [searchTerm, setSearchTerm] = useState('');
 
 	// Detalle de Producto
 	const [selectedProduct, setSelectedProduct] = useState(null);
