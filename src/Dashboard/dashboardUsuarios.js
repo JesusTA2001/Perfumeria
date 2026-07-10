@@ -43,6 +43,7 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 
 	const normalizeProduct = (product) => ({
 		...product,
+		id: product.id_perfume || product.id,
 		name: String(product.nombre || product.name || '').trim(),
 		category: String(product.categoria || product.category || '').trim(),
 		price: Number(product.precio || product.price || 0),
