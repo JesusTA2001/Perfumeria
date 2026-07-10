@@ -135,25 +135,24 @@ async function getPedidos() {
   const conn = await getConnection();
   try {
     const [rows] = await conn.query(`
-      SELECT p.id_pedido, p.comentarios, p.total, p.fecha, p.estado,
-             c.nombre_completo, c.telefono
+      SELECT 
+        p.id_pedido AS id,
+        c.nombre_completo AS clienteNombre,
+        c.telefono AS clienteTelefono,
+        GROUP_CONCAT(CONCAT(perf.nombre, ' (', dp.cantidad, ' ', IF(dp.cantidad = 1, 'unidad', 'unidades'), ')') SEPARATOR ', ') AS perfumeName,
+        COALESCE(SUM(dp.cantidad), 1) AS cantidad,
+        p.total AS precioTotal,
+        p.fecha AS fecha,
+        p.estado AS estado,
+        p.comentarios AS comentarios
       FROM pedido p
-      JOIN cliente c ON p.id_cliente = c.id_cliente
+      LEFT JOIN cliente c ON p.id_cliente = c.id_cliente
+      LEFT JOIN detalle_pedido dp ON p.id_pedido = dp.id_pedido
+      LEFT JOIN presentacion_perfume pres ON dp.id_presentacion = pres.id_presentacion
+      LEFT JOIN perfume perf ON pres.id_perfume = perf.id_perfume
+      GROUP BY p.id_pedido
       ORDER BY p.fecha DESC
     `);
-    
-    for (const pedido of rows) {
-      const [detalles] = await conn.query(`
-        SELECT dp.cantidad, dp.precio_unitario, dp.subtotal,
-               pf.nombre AS perfume_nombre, pp.mililitros
-        FROM detalle_pedido dp
-        JOIN presentacion_perfume pp ON dp.id_presentacion = pp.id_presentacion
-        JOIN perfume pf ON pp.id_perfume = pf.id_perfume
-        WHERE dp.id_pedido = ?
-      `, [pedido.id_pedido]);
-      pedido.detalles = detalles;
-    }
-    
     return rows;
   } finally {
     await conn.end();
