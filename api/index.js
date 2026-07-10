@@ -103,8 +103,8 @@ async function createPedido(body) {
     }
     
     const [pedidoResult] = await conn.query(
-      'INSERT INTO pedido (id_cliente, comentarios, total, estado) VALUES (?, ?, ?, "pendiente")',
-      [id_cliente, comentarios || '', total]
+      'INSERT INTO pedido (id_cliente, comentarios, total, estado) VALUES (?, ?, ?, ?)',
+      [id_cliente, comentarios || '', total, 'pendiente']
     );
     const id_pedido = pedidoResult.insertId;
     
