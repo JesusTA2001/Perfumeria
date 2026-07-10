@@ -66,33 +66,65 @@ async function getPerfumes() {
 async function createPedido(body) {
   const conn = await getConnection();
   try {
-    const { nombre, telefono, comentarios, items } = body;
-    const [clientResult] = await conn.query(
-      'INSERT INTO cliente (nombre_completo, telefono) VALUES (?, ?)',
-      [nombre, telefono]
+    await conn.query('START TRANSACTION');
+    
+    const { clienteNombre, telefono, comentarios, items } = body;
+    
+    let [clientRows] = await conn.query(
+      'SELECT id_cliente FROM cliente WHERE nombre_completo = ? AND telefono = ?',
+      [clienteNombre, telefono]
     );
-    const clienteId = clientResult.insertId;
+    let id_cliente;
+    if (clientRows.length > 0) {
+      id_cliente = clientRows[0].id_cliente;
+    } else {
+      const [resClient] = await conn.query(
+        'INSERT INTO cliente (nombre_completo, telefono) VALUES (?, ?)',
+        [clienteNombre, telefono]
+      );
+      id_cliente = resClient.insertId;
+    }
     
     let total = 0;
     for (const item of items) {
-      total += item.precio * item.cantidad;
+      const { id_presentacion, cantidad } = item;
+      const [presRows] = await conn.query(
+        'SELECT precio, stock FROM presentacion_perfume WHERE id_presentacion = ?',
+        [id_presentacion]
+      );
+      if (presRows.length === 0) throw new Error(`Presentación ${id_presentacion} no encontrada`);
+      
+      const { precio, stock } = presRows[0];
+      if (stock < cantidad) throw new Error(`Stock insuficiente`);
+      
+      total += precio * cantidad;
+      item.precio_unitario = precio;
+      item.subtotal = precio * cantidad;
     }
     
     const [pedidoResult] = await conn.query(
-      'INSERT INTO pedido (id_cliente, comentarios, total, estado) VALUES (?, ?, ?, ?)',
-      [clienteId, comentarios || '', total, 'pendiente']
+      'INSERT INTO pedido (id_cliente, comentarios, total, estado) VALUES (?, ?, ?, "pendiente")',
+      [id_cliente, comentarios || '', total]
     );
-    const pedidoId = pedidoResult.insertId;
+    const id_pedido = pedidoResult.insertId;
     
     for (const item of items) {
-      const subtotal = item.precio * item.cantidad;
+      const { id_presentacion, cantidad, precio_unitario, subtotal } = item;
       await conn.query(
         'INSERT INTO detalle_pedido (id_pedido, id_presentacion, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?)',
-        [pedidoId, item.id_presentacion, item.cantidad, item.precio, subtotal]
+        [id_pedido, id_presentacion, cantidad, precio_unitario, subtotal]
+      );
+      await conn.query(
+        'UPDATE presentacion_perfume SET stock = stock - ? WHERE id_presentacion = ?',
+        [cantidad, id_presentacion]
       );
     }
     
-    return { ok: true, id_pedido: pedidoId, total };
+    await conn.query('COMMIT');
+    return { ok: true, id_pedido, total };
+  } catch (error) {
+    await conn.query('ROLLBACK');
+    throw error;
   } finally {
     await conn.end();
   }
