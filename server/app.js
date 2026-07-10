@@ -163,7 +163,11 @@ app.get('/api/debug/db', async (_req, res) => {
 app.use('/api/perfumes', perfumesRoutes);
 app.use('/api/pedidos', pedidosRoutes);
 
-const initDbPromise = initDb();
+// En Vercel: solo verificar conexión (las tablas ya existen en Aiven)
+// En local: ejecutar initDb completo para crear tablas si no existen
+const initDbPromise = process.env.VERCEL
+	? pool.query('SELECT 1').then(() => console.log('DB connection verified on Vercel')).catch(err => console.error('DB connection failed:', err.message))
+	: initDb();
 
 module.exports = {
 	app,
