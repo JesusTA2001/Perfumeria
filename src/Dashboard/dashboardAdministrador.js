@@ -589,6 +589,7 @@ function DashboardAdministrador({ onLogout }) {
 									<DataGrid
 										rows={products}
 										columns={columns}
+										getRowId={(row) => row.id_perfume || row.id}
 										disableRowSelectionOnClick
 										pageSizeOptions={[5, 10, 25]}
 										initialState={{
