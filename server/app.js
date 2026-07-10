@@ -180,13 +180,27 @@ app.get('/api/debug/env', (req, res) => {
 app.use('/api/perfumes', perfumesRoutes);
 app.use('/api/pedidos', pedidosRoutes);
 
-// En Vercel: solo verificar conexión (las tablas ya existen en Aiven)
-// En local: ejecutar initDb completo para crear tablas si no existen
-const initDbPromise = process.env.VERCEL
-	? pool.query('SELECT 1').then(() => console.log('DB connection verified on Vercel')).catch(err => console.error('DB connection failed:', err.message))
-	: initDb();
+// Inicialización lazy — NO se ejecuta al hacer require()
+// En Vercel, el módulo se carga al arrancar y si pool.query() se cuelga, bloquea todo
+let _initPromise = null;
+const getInitPromise = () => {
+	if (_initPromise) return _initPromise;
+	if (process.env.VERCEL) {
+		_initPromise = pool.query('SELECT 1')
+			.then(() => console.log('DB connection verified on Vercel'))
+			.catch(err => console.error('DB connection failed:', err.message));
+	} else {
+		_initPromise = initDb();
+	}
+	return _initPromise;
+};
+
+// En local, ejecutar initDb inmediatamente
+if (!process.env.VERCEL) {
+	getInitPromise();
+}
 
 module.exports = {
 	app,
-	initDbPromise,
+	getInitPromise,
 };
