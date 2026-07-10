@@ -186,7 +186,12 @@ async function topPerfumes() {
 async function createPerfume(body) {
   const conn = await getConnection();
   try {
-    const { nombre, descripcion, categoria, precio, mililitros, stock, imagen } = body;
+    const { name, descripcion, category, price, mililitros, stock, imageUrl, available } = body;
+    const nombre = name;
+    const categoria = category;
+    const precio = price;
+    const imagen = imageUrl;
+    const activo = available ? 1 : 0;
     
     let [marcas] = await conn.query("SELECT id_marca FROM marca WHERE nombre = 'Generico'");
     let id_marca;
@@ -207,8 +212,8 @@ async function createPerfume(body) {
     }
     
     const [perfumeResult] = await conn.query(
-      'INSERT INTO perfume (id_marca, id_categoria, nombre, descripcion) VALUES (?, ?, ?, ?)',
-      [id_marca, id_categoria, nombre, descripcion || '']
+      'INSERT INTO perfume (id_marca, id_categoria, nombre, descripcion, activo) VALUES (?, ?, ?, ?, ?)',
+      [id_marca, id_categoria, nombre, descripcion || '', activo]
     );
     const id_perfume = perfumeResult.insertId;
     
@@ -233,9 +238,15 @@ async function createPerfume(body) {
 async function updatePerfume(id, body) {
   const conn = await getConnection();
   try {
-    const { nombre, descripcion, categoria, precio, mililitros, stock, imagen, activo } = body;
+    const { name, descripcion, category, price, mililitros, stock, imageUrl, available } = body;
+    const nombre = name;
+    const categoria = category;
+    const precio = price;
+    const imagen = imageUrl;
+    const activo = available ? 1 : 0;
     
-    if (activo !== undefined && Object.keys(body).length === 1) {
+    // Si la actualización es SÓLO para cambiar el estado (desde el Switch)
+    if (body.available !== undefined && Object.keys(body).length <= 2) {
       await conn.query('UPDATE perfume SET activo = ? WHERE id_perfume = ?', [activo, id]);
       return { ok: true };
     }
@@ -250,8 +261,8 @@ async function updatePerfume(id, body) {
     }
     
     await conn.query(
-      'UPDATE perfume SET nombre = ?, descripcion = ?, id_categoria = ? WHERE id_perfume = ?',
-      [nombre, descripcion || '', id_categoria, id]
+      'UPDATE perfume SET nombre = ?, descripcion = ?, id_categoria = ?, activo = ? WHERE id_perfume = ?',
+      [nombre, descripcion || '', id_categoria, activo, id]
     );
     
     await conn.query(
