@@ -48,9 +48,19 @@ const categories = ['Hombre', 'Mujer', 'Unisex'];
 function normalizeProduct(product) {
 	return {
 		...product,
-		price: Number(product.price),
-		stock: Number(product.stock),
-		available: Boolean(product.available),
+		name: String(product.nombre || product.name || '').trim(),
+		category: String(product.categoria || product.category || '').trim(),
+		price: Number(product.precio || product.price || 0),
+		stock: Number(product.stock_total || product.stock || 0),
+		available:
+			product.activo === 1 ||
+			product.activo === true ||
+			product.available === true ||
+			product.available === 1 ||
+			product.available === '1' ||
+			String(product.available).toLowerCase() === 'true',
+		mililitros: Number(product.mililitros || 100),
+		imageUrl: product.ruta_imagen || product.imagen || product.imageUrl,
 	};
 }
 

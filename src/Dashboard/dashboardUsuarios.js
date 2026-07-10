@@ -43,16 +43,19 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 
 	const normalizeProduct = (product) => ({
 		...product,
-		name: String(product.name || '').trim(),
-		category: String(product.category || '').trim(),
-		price: Number(product.price || 0),
-		stock: Number(product.stock || 0),
+		name: String(product.nombre || product.name || '').trim(),
+		category: String(product.categoria || product.category || '').trim(),
+		price: Number(product.precio || product.price || 0),
+		stock: Number(product.stock_total || product.stock || 0),
 		available:
+			product.activo === 1 ||
+			product.activo === true ||
 			product.available === true ||
 			product.available === 1 ||
 			product.available === '1' ||
 			String(product.available).toLowerCase() === 'true',
 		mililitros: Number(product.mililitros || 100),
+		imageUrl: product.ruta_imagen || product.imagen || product.imageUrl,
 	});
 
 	const visibleProducts = products.filter((product) => product.available && product.name.toLowerCase().includes(searchTerm.toLowerCase()));
