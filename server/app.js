@@ -160,6 +160,23 @@ app.get('/api/debug/db', async (_req, res) => {
 	}
 });
 
+app.get('/api/debug/env', (req, res) => {
+	return res.json({
+		VERCEL: process.env.VERCEL || null,
+		NODE_ENV: process.env.NODE_ENV || null,
+		DB_HOST_defined: !!process.env.DB_HOST,
+		DB_HOST_value: process.env.DB_HOST ? `${process.env.DB_HOST.substring(0, 10)}...` : null,
+		DB_PORT_defined: !!process.env.DB_PORT,
+		DB_PORT_value: process.env.DB_PORT || null,
+		DB_USER_defined: !!process.env.DB_USER,
+		DB_USER_value: process.env.DB_USER || null,
+		DB_PASSWORD_defined: !!process.env.DB_PASSWORD,
+		DB_PASSWORD_length: process.env.DB_PASSWORD ? process.env.DB_PASSWORD.length : 0,
+		DB_NAME_defined: !!process.env.DB_NAME,
+		DB_NAME_value: process.env.DB_NAME || null,
+	});
+});
+
 app.use('/api/perfumes', perfumesRoutes);
 app.use('/api/pedidos', pedidosRoutes);
 
