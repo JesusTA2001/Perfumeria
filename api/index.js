@@ -192,7 +192,14 @@ async function ventasMensuales(anio) {
       GROUP BY MONTH(fecha)
       ORDER BY mes
     `, [anio || new Date().getFullYear()]);
-    return rows;
+    
+    // Rellenar los 12 meses
+    const monthlyData = Array.from({ length: 12 }, (_, i) => {
+      const monthRow = rows.find(r => r.mes === i + 1);
+      return { mes: i + 1, total: monthRow ? Number(monthRow.total) : 0 };
+    });
+    
+    return monthlyData;
   } finally {
     await conn.end();
   }
@@ -203,15 +210,15 @@ async function topPerfumes() {
   const conn = await getConnection();
   try {
     const [rows] = await conn.query(`
-      SELECT pf.nombre, SUM(dp.cantidad) as total_vendido
+      SELECT pf.nombre AS name, SUM(dp.cantidad) as units
       FROM detalle_pedido dp
       JOIN presentacion_perfume pp ON dp.id_presentacion = pp.id_presentacion
       JOIN perfume pf ON pp.id_perfume = pf.id_perfume
       JOIN pedido p ON dp.id_pedido = p.id_pedido
       WHERE p.estado != 'no_entregado'
       GROUP BY pf.id_perfume, pf.nombre
-      ORDER BY total_vendido DESC
-      LIMIT 5
+      ORDER BY units DESC
+      LIMIT 3
     `);
     return rows;
   } finally {
@@ -364,6 +371,7 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
   
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
