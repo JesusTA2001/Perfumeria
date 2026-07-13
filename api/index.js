@@ -19,6 +19,40 @@ async function getConnection() {
   });
 }
 
+// POST /api/auth/login
+async function login(usuario, contrasena) {
+  const conn = await getConnection();
+  try {
+    const [rows] = await conn.query(
+      'SELECT id_administrador, nombre, correo FROM administrador WHERE nombre = ? AND password = ?',
+      [usuario, contrasena]
+    );
+    if (rows.length > 0) {
+      return { ok: true, user: rows[0] };
+    }
+    return { ok: false, message: 'Usuario o contraseña incorrectos' };
+  } finally {
+    await conn.end();
+  }
+}
+
+// PUT /api/auth/cambiar-password
+async function cambiarPassword(usuario, nuevaContrasena) {
+  const conn = await getConnection();
+  try {
+    const [result] = await conn.query(
+      'UPDATE administrador SET password = ? WHERE nombre = ?',
+      [nuevaContrasena, usuario]
+    );
+    if (result.affectedRows > 0) {
+      return { ok: true };
+    }
+    return { ok: false, message: 'Usuario no encontrado' };
+  } finally {
+    await conn.end();
+  }
+}
+
 // GET /api/perfumes — la misma query que perfumesController.getPerfumes
 async function getPerfumes() {
   const conn = await getConnection();
