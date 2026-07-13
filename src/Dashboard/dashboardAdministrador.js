@@ -468,7 +468,7 @@ function DashboardAdministrador({ onLogout }) {
 				</Drawer>
 			</Box>
 
-			<Box sx={{ flexGrow: 1, width: { md: `calc(100% - ${drawerWidth}px)` } }}>
+			<Box sx={{ flexGrow: 1, minWidth: 0, width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` } }}>
 				<AppBar
 					position="sticky"
 					elevation={0}
@@ -585,8 +585,9 @@ function DashboardAdministrador({ onLogout }) {
 									</Button>
 								</Stack>
 
-								<Paper sx={{ height: 520, backgroundColor: '#ffffff', border: '1px solid rgba(15, 23, 42, 0.08)', boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)' }}>
-									<DataGrid
+								<Paper sx={{ height: 520, width: '100%', overflowX: 'auto', backgroundColor: '#ffffff', border: '1px solid rgba(15, 23, 42, 0.08)', boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)' }}>
+									<Box sx={{ minWidth: 800, height: '100%' }}>
+										<DataGrid
 										rows={products}
 										columns={columns}
 										getRowId={(row) => row.id_perfume || row.id}
@@ -617,6 +618,7 @@ function DashboardAdministrador({ onLogout }) {
 											},
 										}}
 									/>
+									</Box>
 								</Paper>
 							</Grid>
 
