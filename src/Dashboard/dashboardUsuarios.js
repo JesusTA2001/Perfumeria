@@ -289,7 +289,6 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 				{/* 3 Carruseles por categoría */}
 				{categoriesToRender.map((cat) => {
 					const catProducts = getProductsByCategory(cat);
-					const ref = carouselRefs.current[cat] || null;
 					return (
 						<Box key={cat} sx={{ mb: 7 }}>
 							{/* Encabezado de sección */}
