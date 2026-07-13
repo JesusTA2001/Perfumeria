@@ -6,13 +6,16 @@ import Loing from './Auth/Loing';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loggedUser, setLoggedUser] = useState(null);
   const [currentView, setCurrentView] = useState('store'); // 'store' o 'login'
 
   if (isAuthenticated) {
     return (
       <DashboardAdministrador
+        loggedUser={loggedUser}
         onLogout={() => {
           setIsAuthenticated(false);
+          setLoggedUser(null);
           setCurrentView('store');
         }}
       />
@@ -23,7 +26,10 @@ function App() {
     <DashboardUsuarios onNavigateToLogin={() => setCurrentView('login')} />
   ) : (
     <Loing
-      onLogin={() => setIsAuthenticated(true)}
+      onLogin={(user) => {
+        setIsAuthenticated(true);
+        setLoggedUser(user);
+      }}
       onBackToStore={() => setCurrentView('store')}
     />
   );

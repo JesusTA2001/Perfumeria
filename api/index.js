@@ -458,6 +458,28 @@ module.exports = async (req, res) => {
       return res.status(200).json({ ok: true, message: 'API y MySQL conectados' });
     }
     
+    // POST /api/auth/login
+    if (path === '/auth/login' && req.method === 'POST') {
+      const body = await getBody(req);
+      const result = await login(body.usuario, body.contrasena);
+      if (result.ok) {
+        return res.status(200).json(result);
+      } else {
+        return res.status(401).json(result);
+      }
+    }
+    
+    // PUT /api/auth/cambiar-password
+    if (path === '/auth/cambiar-password' && req.method === 'PUT') {
+      const body = await getBody(req);
+      const result = await cambiarPassword(body.usuario, body.nuevaContrasena);
+      if (result.ok) {
+        return res.status(200).json(result);
+      } else {
+        return res.status(400).json(result);
+      }
+    }
+    
     // GET /api/debug/env
     if (path === '/debug/env' && req.method === 'GET') {
       return res.status(200).json({

@@ -37,6 +37,7 @@ import EditarPerfume from '../features/EditarPerfume/EditarPerfume';
 import EliminarPerfume from '../features/EliminarPerfume/EliminarPerfume';
 import Productos from '../features/Productos/Productos';
 import Pedidos from '../features/Pedidos/Pedidos';
+import CambiarContraseña from '../Auth/CambiarContraseña';
 
 const drawerWidth = 280;
 const apiBaseUrl = process.env.REACT_APP_API_URL || '/api';
@@ -77,8 +78,9 @@ function dashboardPalette(isAvailable, stock) {
 	return { label: 'Disponible', background: '#16a34a', text: '#ffffff' };
 }
 
-function DashboardAdministrador({ onLogout }) {
+function DashboardAdministrador({ onLogout, loggedUser }) {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
+	const [passwordModalOpen, setPasswordModalOpen] = useState(false);
 	const [products, setProducts] = useState([]);
 	const [createOpen, setCreateOpen] = useState(false);
 	const [editOpen, setEditOpen] = useState(false);
@@ -420,6 +422,28 @@ function DashboardAdministrador({ onLogout }) {
 							{item.label}
 						</Button>
 					))}
+					
+					{/* Botón para cambiar contraseña */}
+					<Button
+						variant="text"
+						color="inherit"
+						fullWidth
+						onClick={() => {
+							setPasswordModalOpen(true);
+							setSidebarOpen(false);
+						}}
+						sx={{
+							justifyContent: 'flex-start',
+							borderRadius: 2,
+							py: 1.2,
+							color: 'rgba(255, 255, 255, 0.7)',
+							'&:hover': {
+								backgroundColor: 'rgba(255, 255, 255, 0.08)'
+							}
+						}}
+					>
+						Cambiar Contraseña
+					</Button>
 				</Stack>
 			</Box>
 			<Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.08)' }} />
@@ -721,25 +745,33 @@ function DashboardAdministrador({ onLogout }) {
 					)}
 				</Box>
 			</Box>
-						<CrearPerfume
-							open={createOpen}
-							onClose={closeCreateDialog}
-							onCreate={handleCreate}
-							categories={categories}
-						/>
-						<EditarPerfume
-							open={editOpen}
-							product={editingProduct}
-							onClose={closeEditDialog}
-							onSave={handleEdit}
-							categories={categories}
-						/>
-						<EliminarPerfume
-							open={deleteOpen}
-							product={productToDelete}
-							onClose={closeDeleteDialog}
-							onConfirm={handleDelete}
-						/>
+
+			{/* Dialogos compartidos */}
+			<CrearPerfume
+				open={createOpen}
+				onClose={closeCreateDialog}
+				onCreate={handleCreate}
+				categories={categories}
+			/>
+			<EditarPerfume
+				open={editOpen}
+				product={editingProduct}
+				onClose={closeEditDialog}
+				onSave={handleEdit}
+				categories={categories}
+			/>
+			<EliminarPerfume
+				open={deleteOpen}
+				product={productToDelete}
+				onClose={closeDeleteDialog}
+				onConfirm={handleDelete}
+			/>
+			
+			<CambiarContraseña 
+				open={passwordModalOpen} 
+				onClose={() => setPasswordModalOpen(false)} 
+				loggedUser={loggedUser}
+			/>
 		</Box>
 	);
 }

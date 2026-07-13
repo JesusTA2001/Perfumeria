@@ -19,16 +19,33 @@ function Loing({ onLogin, onBackToStore }) {
 	const [mostrarContrasena, setMostrarContrasena] = useState(false);
 	const [error, setError] = useState('');
 
-	const handleSubmit = (event) => {
+	const handleSubmit = async (event) => {
 		event.preventDefault();
 
-		if (usuario.trim().toLowerCase() === 'hector' && contrasena === '123456') {
-			setError('');
-			onLogin();
+		if (!usuario || !contrasena) {
+			setError('Por favor ingrese usuario y contraseña.');
 			return;
 		}
 
-		setError('Usuario o contraseña incorrectos.');
+		try {
+			setError('');
+			const apiBaseUrl = process.env.REACT_APP_API_URL || '/api';
+			const response = await fetch(`${apiBaseUrl}/auth/login`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ usuario, contrasena }),
+			});
+			
+			const data = await response.json();
+			
+			if (response.ok && data.ok) {
+				onLogin(data.user);
+			} else {
+				setError(data.message || 'Usuario o contraseña incorrectos.');
+			}
+		} catch (err) {
+			setError('Error de conexión con el servidor.');
+		}
 	};
 
 	return (
@@ -96,7 +113,6 @@ function Loing({ onLogin, onBackToStore }) {
 									onChange={(event) => setUsuario(event.target.value)}
 									fullWidth
 									required
-									placeholder="Hector"
 									slotProps={{ inputLabel: { sx: { color: '#4b5563' } } }}
 									sx={{
 										'& .MuiOutlinedInput-root': {
@@ -115,7 +131,6 @@ function Loing({ onLogin, onBackToStore }) {
 									onChange={(event) => setContrasena(event.target.value)}
 									fullWidth
 									required
-									placeholder="123456"
 									slotProps={{
 										inputLabel: { sx: { color: '#4b5563' } },
 										input: {
@@ -140,15 +155,7 @@ function Loing({ onLogin, onBackToStore }) {
 
 								{error ? <Alert severity="error">{error}</Alert> : null}
 
-								<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
-									<Box>
-										<Typography variant="caption" sx={{ color: '#6b7280', display: 'block' }}>
-											Usuario: Hector
-										</Typography>
-										<Typography variant="caption" sx={{ color: '#6b7280', display: 'block' }}>
-											Contraseña: 123456
-										</Typography>
-									</Box>
+								<Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
 									<Button
 										type="submit"
 										variant="contained"
