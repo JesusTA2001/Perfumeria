@@ -133,11 +133,11 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 	const [selectedProduct, setSelectedProduct] = useState(null);
 
 	// Controles de Carrusel por categoría
-	const scrollCarousel = (ref, direction) => {
-		if (ref.current) {
-			const { scrollLeft, clientWidth } = ref.current;
+	const scrollCarousel = (el, direction) => {
+		if (el) {
+			const { scrollLeft, clientWidth } = el;
 			const scrollAmount = direction === 'left' ? -clientWidth * 0.75 : clientWidth * 0.75;
-			ref.current.scrollTo({ left: scrollLeft + scrollAmount, behavior: 'smooth' });
+			el.scrollTo({ left: scrollLeft + scrollAmount, behavior: 'smooth' });
 		}
 	};
 
@@ -307,10 +307,10 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 								</Stack>
 								{catProducts.length > 3 && (
 									<Stack direction="row" spacing={1}>
-										<IconButton onClick={() => scrollCarousel(ref, 'left')} sx={{ border: '1px solid rgba(15,23,42,0.08)', backgroundColor: '#fff' }}>
+										<IconButton onClick={() => scrollCarousel(carouselRefs.current[cat], 'left')} sx={{ border: '1px solid rgba(15,23,42,0.08)', backgroundColor: '#fff' }}>
 											<ArrowBackIosNew fontSize="small" />
 										</IconButton>
-										<IconButton onClick={() => scrollCarousel(ref, 'right')} sx={{ border: '1px solid rgba(15,23,42,0.08)', backgroundColor: '#fff' }}>
+										<IconButton onClick={() => scrollCarousel(carouselRefs.current[cat], 'right')} sx={{ border: '1px solid rgba(15,23,42,0.08)', backgroundColor: '#fff' }}>
 											<ArrowForwardIos fontSize="small" />
 										</IconButton>
 									</Stack>
@@ -427,7 +427,7 @@ export default function DashboardUsuarios({ onNavigateToLogin }) {
 				}}
 			>
 				{selectedProduct && (
-					<Box>
+					<Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', maxHeight: '85vh', overflowY: 'auto' }}>
 						<Box sx={{ position: 'relative' }}>
 							<IconButton
 								onClick={() => setSelectedProduct(null)}
